@@ -16,6 +16,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.fooddelivery.data.repository.FoodRepository
 import com.example.fooddelivery.ui.components.FreshBiteBottomBar
+import com.example.fooddelivery.ui.screens.auth.LoginScreen
+import com.example.fooddelivery.ui.screens.auth.LoginViewModel
+import com.example.fooddelivery.ui.screens.auth.RegisterScreen
+import com.example.fooddelivery.ui.screens.auth.RegisterViewModel
 import com.example.fooddelivery.ui.screens.cart.CartCheckoutScreen
 import com.example.fooddelivery.ui.screens.cart.CartViewModel
 import com.example.fooddelivery.ui.screens.detail.RestaurantDetailScreen
@@ -71,9 +75,39 @@ fun FreshBiteMainApp(
             composable(Screen.Splash.route) {
                 SplashScreen(
                     onGetStartedClick = {
-                        navController.navigate(Screen.Home.route) {
+                        navController.navigate(Screen.Login.route) {
                             popUpTo(Screen.Splash.route) { inclusive = true }
                         }
+                    }
+                )
+            }
+
+            composable(Screen.Login.route) {
+                val loginViewModel: LoginViewModel = hiltViewModel()
+                LoginScreen(
+                    viewModel = loginViewModel,
+                    onLoginSuccess = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Login.route) { inclusive = true }
+                        }
+                    },
+                    onCreateAccountClick = {
+                        navController.navigate(Screen.Register.route)
+                    }
+                )
+            }
+
+            composable(Screen.Register.route) {
+                val registerViewModel: RegisterViewModel = hiltViewModel()
+                RegisterScreen(
+                    viewModel = registerViewModel,
+                    onRegisterSuccess = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Register.route) { inclusive = true }
+                        }
+                    },
+                    onLoginClick = {
+                        navController.popBackStack()
                     }
                 )
             }

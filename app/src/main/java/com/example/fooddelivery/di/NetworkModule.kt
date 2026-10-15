@@ -1,5 +1,7 @@
 package com.example.fooddelivery.di
 
+import com.example.fooddelivery.data.api.AuthInterceptor
+import com.example.fooddelivery.data.api.FastApiFoodDeliveryApi
 import com.example.fooddelivery.data.api.FoodDeliveryApi
 import dagger.Module
 import dagger.Provides
@@ -28,8 +30,9 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
+    fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
+            .addInterceptor(authInterceptor)
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
             })
@@ -43,7 +46,7 @@ object NetworkModule {
     fun provideRetrofit(okHttpClient: OkHttpClient, json: Json): Retrofit {
         val contentType = "application/json".toMediaType()
         return Retrofit.Builder()
-            .baseUrl("https://api.freshbite.eco/v1/")
+            .baseUrl("http://10.0.2.2:8000/")
             .client(okHttpClient)
             .addConverterFactory(json.asConverterFactory(contentType))
             .build()
@@ -53,5 +56,11 @@ object NetworkModule {
     @Singleton
     fun provideFoodDeliveryApi(retrofit: Retrofit): FoodDeliveryApi {
         return retrofit.create(FoodDeliveryApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFastApiFoodDeliveryApi(retrofit: Retrofit): FastApiFoodDeliveryApi {
+        return retrofit.create(FastApiFoodDeliveryApi::class.java)
     }
 }
