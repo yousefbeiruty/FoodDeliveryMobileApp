@@ -49,7 +49,6 @@ import coil.compose.AsyncImage
 import com.example.fooddelivery.data.model.Banner
 import com.example.fooddelivery.data.model.Category
 import com.example.fooddelivery.data.model.Restaurant
-import com.example.fooddelivery.data.repository.FoodRepositoryImpl
 import com.example.fooddelivery.ui.components.EcoBadge
 import com.example.fooddelivery.ui.components.EmptyStateView
 import com.example.fooddelivery.ui.components.RestaurantCardShimmer
@@ -505,9 +504,21 @@ fun HomeScreenPreview() {
         HomeScreenContent(
             uiState = HomeUiState(
                 isLoading = false,
-                categories = FoodRepositoryImpl.mockCategories,
-                banners = FoodRepositoryImpl.mockBanners,
-                restaurants = FoodRepositoryImpl.mockRestaurants
+                categories = listOf(Category("all", "All", "ic_all", isSelected = true)),
+                banners = emptyList(),
+                restaurants = listOf(
+                    Restaurant(
+                        id = "r1",
+                        name = "Green Bowl Bar",
+                        rating = 4.9,
+                        reviewCount = 100,
+                        deliveryTimeMinutes = 20,
+                        deliveryFee = 1.99,
+                        distanceKm = 1.2,
+                        imageUrl = "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80",
+                        tags = listOf("Healthy", "Vegan")
+                    )
+                )
             ),
             onSearchQueryChanged = {},
             onCategorySelected = {},
@@ -521,7 +532,17 @@ fun HomeScreenPreview() {
 fun RestaurantCardPreview() {
     FreshBiteTheme {
         RestaurantCard(
-            restaurant = FoodRepositoryImpl.mockRestaurants.first(),
+            restaurant = Restaurant(
+                id = "r1",
+                name = "Green Bowl Bar",
+                rating = 4.9,
+                reviewCount = 100,
+                deliveryTimeMinutes = 20,
+                deliveryFee = 1.99,
+                distanceKm = 1.2,
+                imageUrl = "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80",
+                tags = listOf("Healthy", "Vegan")
+            ),
             onClick = {}
         )
     }

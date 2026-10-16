@@ -4,11 +4,12 @@ import com.example.fooddelivery.data.model.CartItem
 
 data class CartUiState(
     val cartItems: List<CartItem> = emptyList(),
-    val selectedTipAmount: Double = 3.0,
-    val deliveryAddress: String = "742 Evergreen Terrace, Green City",
+    val selectedTipAmount: Double = 1.0,
+    val promoCode: String = "",
+    val deliveryAddress: String = "12 Rainbow Street, Amman",
     val subtotal: Double = 0.0,
-    val deliveryFee: Double = 2.99,
-    val ecoDiscount: Double = 1.50,
+    val deliveryFee: Double = 0.0,
+    val ecoDiscount: Double = 0.0,
     val total: Double = 0.0,
     val isPlacingOrder: Boolean = false,
     val orderPlacedSuccess: Boolean = false,

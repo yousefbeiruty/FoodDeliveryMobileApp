@@ -9,6 +9,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import com.example.fooddelivery.data.auth.TokenManager
 import com.example.fooddelivery.data.repository.FoodRepository
 import com.example.fooddelivery.ui.navigation.FreshBiteMainApp
 import com.example.fooddelivery.ui.theme.FreshBiteTheme
@@ -21,6 +22,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var foodRepository: FoodRepository
 
+    @Inject
+    lateinit var tokenManager: TokenManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -29,7 +33,10 @@ class MainActivity : ComponentActivity() {
 
             FreshBiteTheme(darkTheme = userProfile.isDarkMode) {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    FreshBiteMainApp(foodRepository = foodRepository)
+                    FreshBiteMainApp(
+                        foodRepository = foodRepository,
+                        tokenManager = tokenManager
+                    )
                 }
             }
         }

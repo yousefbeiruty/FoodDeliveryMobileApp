@@ -53,10 +53,12 @@ class LoginViewModel @Inject constructor(
                 _uiState.update { it.copy(isLoading = false) }
                 onSuccess()
             } catch (e: Exception) {
-                // Fallback mock success for offline/demo testing
-                tokenManager.saveToken("mock_jwt_token_freshbite_12345")
-                _uiState.update { it.copy(isLoading = false) }
-                onSuccess()
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = e.localizedMessage ?: "Login failed. Check if backend is running at http://10.0.2.2:8000"
+                    )
+                }
             }
         }
     }

@@ -1,6 +1,8 @@
 package com.example.fooddelivery.ui.screens.profile
 
 import com.example.fooddelivery.MainDispatcherRule
+import com.example.fooddelivery.data.auth.TokenManager
+import com.example.fooddelivery.data.repository.FakeFastApiFoodDeliveryApi
 import com.example.fooddelivery.data.repository.FakeFoodRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -19,12 +21,16 @@ class ProfileViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private lateinit var fakeRepository: FakeFoodRepository
+    private lateinit var fakeApi: FakeFastApiFoodDeliveryApi
+    private lateinit var tokenManager: TokenManager
     private lateinit var viewModel: ProfileViewModel
 
     @Before
     fun setUp() {
         fakeRepository = FakeFoodRepository()
-        viewModel = ProfileViewModel(fakeRepository)
+        fakeApi = FakeFastApiFoodDeliveryApi()
+        tokenManager = TokenManager(null)
+        viewModel = ProfileViewModel(fakeRepository, fakeApi, tokenManager)
     }
 
     @Test

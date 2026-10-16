@@ -59,9 +59,10 @@ class RegisterViewModel @Inject constructor(
             try {
                 api.registerUser(
                     RegisterUserRequest(
-                        username = state.fullName,
                         email = state.email,
-                        password = state.password
+                        password = state.password,
+                        fullName = state.fullName,
+                        phoneNumber = state.phone.ifBlank { null }
                     )
                 )
                 val tokenRes = api.loginForAccessToken(username = state.email, password = state.password)
@@ -69,10 +70,12 @@ class RegisterViewModel @Inject constructor(
                 _uiState.update { it.copy(isLoading = false) }
                 onSuccess()
             } catch (e: Exception) {
-                // Fallback mock success for offline/demo testing
-                tokenManager.saveToken("mock_jwt_token_freshbite_register")
-                _uiState.update { it.copy(isLoading = false) }
-                onSuccess()
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = e.localizedMessage ?: "Registration failed. Check if backend is running at http://10.0.2.2:8000"
+                    )
+                }
             }
         }
     }

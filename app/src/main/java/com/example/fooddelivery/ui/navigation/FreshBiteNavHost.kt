@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.fooddelivery.data.auth.TokenManager
 import com.example.fooddelivery.data.repository.FoodRepository
 import com.example.fooddelivery.ui.components.FreshBiteBottomBar
 import com.example.fooddelivery.ui.screens.auth.LoginScreen
@@ -35,6 +36,7 @@ import com.example.fooddelivery.ui.screens.tracking.OrderTrackingViewModel
 @Composable
 fun FreshBiteMainApp(
     foodRepository: FoodRepository,
+    tokenManager: TokenManager,
     navController: NavHostController = rememberNavController()
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -49,6 +51,8 @@ fun FreshBiteMainApp(
         Screen.Tracking.route,
         Screen.Profile.route
     )
+
+    val startDestination = if (tokenManager.getToken() != null) Screen.Home.route else Screen.Splash.route
 
     Scaffold(
         bottomBar = {
@@ -69,7 +73,7 @@ fun FreshBiteMainApp(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Splash.route,
+            startDestination = startDestination,
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Splash.route) {
@@ -159,7 +163,14 @@ fun FreshBiteMainApp(
 
             composable(Screen.Profile.route) {
                 val profileViewModel: ProfileViewModel = hiltViewModel()
-                ProfileScreen(viewModel = profileViewModel)
+                ProfileScreen(
+                    viewModel = profileViewModel,
+                    onLogout = {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                )
             }
         }
     }

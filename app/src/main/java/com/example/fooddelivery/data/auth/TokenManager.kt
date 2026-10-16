@@ -7,22 +7,35 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class TokenManager @Inject constructor(
-    @ApplicationContext private val context: Context
+open class TokenManager @Inject constructor(
+    @ApplicationContext private val context: Context?
 ) {
-    private val prefs: SharedPreferences =
-        context.getSharedPreferences("freshbite_secure_prefs", Context.MODE_PRIVATE)
-
-    fun saveToken(token: String) {
-        prefs.edit().putString(KEY_JWT_TOKEN, token).apply()
+    private val prefs: SharedPreferences? = try {
+        context?.getSharedPreferences("freshbite_secure_prefs", Context.MODE_PRIVATE)
+    } catch (_: Exception) {
+        null
     }
 
-    fun getToken(): String? {
-        return prefs.getString(KEY_JWT_TOKEN, null)
+    private var inMemoryToken: String? = null
+
+    open fun saveToken(token: String) {
+        if (prefs != null) {
+            prefs.edit().putString(KEY_JWT_TOKEN, token).apply()
+        } else {
+            inMemoryToken = token
+        }
     }
 
-    fun clearToken() {
-        prefs.edit().remove(KEY_JWT_TOKEN).apply()
+    open fun getToken(): String? {
+        return prefs?.getString(KEY_JWT_TOKEN, null) ?: inMemoryToken
+    }
+
+    open fun clearToken() {
+        if (prefs != null) {
+            prefs.edit().remove(KEY_JWT_TOKEN).apply()
+        } else {
+            inMemoryToken = null
+        }
     }
 
     companion object {

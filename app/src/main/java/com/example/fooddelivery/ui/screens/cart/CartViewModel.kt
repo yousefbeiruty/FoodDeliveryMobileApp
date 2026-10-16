@@ -2,6 +2,9 @@ package com.example.fooddelivery.ui.screens.cart
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.fooddelivery.data.api.FastApiFoodDeliveryApi
+import com.example.fooddelivery.data.api.OrderQuoteItem
+import com.example.fooddelivery.data.api.OrderQuoteRequest
 import com.example.fooddelivery.data.model.MenuItem
 import com.example.fooddelivery.data.repository.FoodRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CartViewModel @Inject constructor(
-    private val foodRepository: FoodRepository
+    private val foodRepository: FoodRepository,
+    private val api: FastApiFoodDeliveryApi
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CartUiState())
@@ -27,7 +31,8 @@ class CartViewModel @Inject constructor(
     private fun observeCartAndProfile() {
         viewModelScope.launch {
             foodRepository.cartItemsFlow.collect { items ->
-                calculateSummary(items, _uiState.value.selectedTipAmount)
+                _uiState.update { it.copy(cartItems = items) }
+                fetchQuote()
             }
         }
         viewModelScope.launch {
@@ -39,7 +44,12 @@ class CartViewModel @Inject constructor(
 
     fun updateTip(tip: Double) {
         _uiState.update { it.copy(selectedTipAmount = tip) }
-        calculateSummary(_uiState.value.cartItems, tip)
+        fetchQuote()
+    }
+
+    fun updatePromoCode(code: String) {
+        _uiState.update { it.copy(promoCode = code) }
+        fetchQuote()
     }
 
     fun updateQuantity(menuItem: MenuItem, newQuantity: Int) {
@@ -52,6 +62,56 @@ class CartViewModel @Inject constructor(
 
     fun updateAddress(address: String) {
         _uiState.update { it.copy(deliveryAddress = address) }
+    }
+
+    private fun fetchQuote() {
+        val items = _uiState.value.cartItems
+        if (items.isEmpty()) {
+            _uiState.update {
+                it.copy(subtotal = 0.0, deliveryFee = 0.0, ecoDiscount = 0.0, total = 0.0)
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                val quoteItems = items.map {
+                    OrderQuoteItem(
+                        menuItemId = it.menuItem.id.toIntOrNull() ?: 1,
+                        quantity = it.quantity
+                    )
+                }
+                val quote = api.getOrderQuote(
+                    OrderQuoteRequest(
+                        items = quoteItems,
+                        driverTip = _uiState.value.selectedTipAmount,
+                        promoCode = _uiState.value.promoCode.takeIf { it.isNotBlank() }
+                    )
+                )
+                _uiState.update {
+                    it.copy(
+                        subtotal = quote.subtotal,
+                        deliveryFee = quote.deliveryFee,
+                        ecoDiscount = quote.discount,
+                        total = quote.totalAmount
+                    )
+                }
+            } catch (e: Exception) {
+                // Fallback local calculation if offline
+                val subtotal = items.sumOf { it.totalPrice }
+                val deliveryFee = 2.5
+                val discount = if (_uiState.value.promoCode.isNotBlank()) 1.7 else 0.0
+                val total = (subtotal + deliveryFee + _uiState.value.selectedTipAmount - discount).coerceAtLeast(0.0)
+                _uiState.update {
+                    it.copy(
+                        subtotal = subtotal,
+                        deliveryFee = deliveryFee,
+                        ecoDiscount = discount,
+                        total = total
+                    )
+                }
+            }
+        }
     }
 
     fun placeOrder(onSuccess: () -> Unit) {
@@ -72,23 +132,6 @@ class CartViewModel @Inject constructor(
                     )
                 }
             }
-        }
-    }
-
-    private fun calculateSummary(items: List<com.example.fooddelivery.data.model.CartItem>, tip: Double) {
-        val subtotal = items.sumOf { it.totalPrice }
-        val deliveryFee = if (items.isEmpty()) 0.0 else 2.99
-        val ecoDiscount = if (items.isEmpty()) 0.0 else 1.50
-        val total = (subtotal + deliveryFee + tip - ecoDiscount).coerceAtLeast(0.0)
-
-        _uiState.update {
-            it.copy(
-                cartItems = items,
-                subtotal = subtotal,
-                deliveryFee = deliveryFee,
-                ecoDiscount = ecoDiscount,
-                total = total
-            )
         }
     }
 }

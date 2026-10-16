@@ -55,7 +55,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.fooddelivery.data.model.MenuItem
-import com.example.fooddelivery.data.repository.FoodRepositoryImpl
+import com.example.fooddelivery.data.model.Restaurant
 import com.example.fooddelivery.ui.components.EcoBadge
 import com.example.fooddelivery.ui.components.ErrorStateView
 import com.example.fooddelivery.ui.theme.FreshBiteTheme
@@ -114,7 +114,7 @@ fun RestaurantDetailContent(
                 onRetry = onRetry
             )
         } else {
-            val restaurant = uiState.restaurant!!
+            val restaurant = uiState.restaurant
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -494,7 +494,17 @@ fun MenuItemCard(
 fun MenuItemCardPreview() {
     FreshBiteTheme {
         MenuItemCard(
-            menuItem = FoodRepositoryImpl.mockRestaurants.first().menuItems.first(),
+            menuItem = MenuItem(
+                id = "m1",
+                restaurantId = "r1",
+                name = "Avocado Bowl",
+                description = "Healthy avocado bowl",
+                price = 12.99,
+                imageUrl = "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
+                calories = 420,
+                category = "healthy",
+                isVegan = true
+            ),
             quantity = 2,
             onAddClick = {},
             onQuantityChange = {}
@@ -505,13 +515,36 @@ fun MenuItemCardPreview() {
 @Preview(showBackground = true)
 @Composable
 fun RestaurantDetailScreenPreview() {
-    val sampleRestaurant = FoodRepositoryImpl.mockRestaurants.first()
+    val sampleRestaurant = Restaurant(
+        id = "r1",
+        name = "Green Bowl Bar",
+        rating = 4.9,
+        reviewCount = 100,
+        deliveryTimeMinutes = 20,
+        deliveryFee = 1.99,
+        distanceKm = 1.2,
+        imageUrl = "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80",
+        tags = listOf("Healthy", "Vegan"),
+        menuItems = listOf(
+            MenuItem(
+                id = "m1",
+                restaurantId = "r1",
+                name = "Avocado Bowl",
+                description = "Healthy avocado bowl",
+                price = 12.99,
+                imageUrl = "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
+                calories = 420,
+                category = "healthy",
+                isVegan = true
+            )
+        )
+    )
     FreshBiteTheme {
         RestaurantDetailContent(
             uiState = RestaurantDetailUiState(
                 isLoading = false,
                 restaurant = sampleRestaurant,
-                itemQuantities = mapOf(sampleRestaurant.menuItems.first().id to 2)
+                itemQuantities = mapOf("m1" to 2)
             ),
             onBackClick = {},
             onViewCartClick = {},

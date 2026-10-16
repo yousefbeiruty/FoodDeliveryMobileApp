@@ -34,6 +34,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -164,6 +166,24 @@ fun CartCheckoutScreen(
                     )
                 }
 
+                // Promo Code Input
+                item {
+                    OutlinedTextField(
+                        value = uiState.promoCode,
+                        onValueChange = viewModel::updatePromoCode,
+                        label = { Text("Promo Code (e.g. FRESH10)") },
+                        singleLine = true,
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                        )
+                    )
+                }
+
                 // Driver Tip Selector
                 item {
                     Column {
@@ -181,7 +201,7 @@ fun CartCheckoutScreen(
                         )
                         Spacer(modifier = Modifier.height(10.dp))
 
-                        val tips = listOf(2.0, 3.0, 5.0, 8.0)
+                        val tips = listOf(1.0, 2.0, 3.0, 5.0)
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                             modifier = Modifier.fillMaxWidth()

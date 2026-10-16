@@ -38,6 +38,16 @@ class HomeViewModel @Inject constructor(
                 categoryId = _uiState.value.selectedCategoryId
             )
 
+            if (restaurantsRes.isFailure) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = restaurantsRes.exceptionOrNull()?.localizedMessage ?: "Failed to load restaurants from backend."
+                    )
+                }
+                return@launch
+            }
+
             val categories = categoriesRes.getOrDefault(emptyList())
             val banners = bannersRes.getOrDefault(emptyList())
             val restaurants = restaurantsRes.getOrDefault(emptyList())
@@ -80,7 +90,13 @@ class HomeViewModel @Inject constructor(
             categoryId = _uiState.value.selectedCategoryId
         )
         if (res.isSuccess) {
-            _uiState.update { it.copy(restaurants = res.getOrDefault(emptyList())) }
+            _uiState.update { it.copy(restaurants = res.getOrDefault(emptyList()), errorMessage = null) }
+        } else {
+            _uiState.update {
+                it.copy(
+                    errorMessage = res.exceptionOrNull()?.localizedMessage ?: "Failed to fetch restaurants."
+                )
+            }
         }
     }
 }

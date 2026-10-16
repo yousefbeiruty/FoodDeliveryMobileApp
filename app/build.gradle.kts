@@ -21,7 +21,14 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8000/\"")
+            buildConfigField("String", "WS_BASE_URL", "\"ws://10.0.2.2:8000/\"")
+            isMinifyEnabled = false
+        }
         release {
+            buildConfigField("String", "BASE_URL", "\"https://api.freshbite.eco/\"")
+            buildConfigField("String", "WS_BASE_URL", "\"wss://api.freshbite.eco/\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -35,6 +42,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -63,12 +71,14 @@ dependencies {
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.kotlinx.serialization.json)
 
-    // Image loading
+    // Image loading & SVG support
     implementation(libs.coil.compose)
+    implementation("io.coil-kt:coil-svg:2.6.0")
 
     testImplementation(libs.junit)
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
     testImplementation("app.cash.turbine:turbine:1.1.0")
+
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
